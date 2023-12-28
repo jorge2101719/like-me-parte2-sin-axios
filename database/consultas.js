@@ -44,16 +44,19 @@ const mudarPost = async (descripcion, id) => {
     return { id, descripcion }
 };
 
-export const actualizarLike = async (likes, id) => {
-    const consulta = 'UPDATE posts SET likes = $1 WHERE id = $2';
-    const values = [likes, id];
-    const result = await pool.query(consulta, values)
+// actualización del campo LIKES de un registro.
+const actualizarLike = async (id) => {
+    const registro = 'SELECT * FROM posts WHERE id = $1';
+    const idRegistro = [id];
+    const datos = await pool.query(registro, idRegistro);
+    const post = datos.rows[0];
+    const subirLikes = post.likes + 1;
 
-    console.log(result.rowCount)
-
-    return { id, likes }
+    const consulta = 'UPDATE posts SET likes = $1 WHERE id=$2 RETURNING *';
+    const values = [subirLikes, id]
+    const respuesta = await pool.query(consulta, values);
+    return respuesta.rows[0];
 };
-
 
 // DELETE (borrar)
 
@@ -73,4 +76,4 @@ const borrarPost = async (id) => {
     return id
 };
 
-export { verPosts, agregarPost, mudarPost, borrarPost }
+export { verPosts, agregarPost, mudarPost, borrarPost, actualizarLike }

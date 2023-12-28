@@ -3,7 +3,7 @@ import 'dotenv/config';
 
 // importar manejador de errores y modulos propios
 import { handleErrors } from './database/errors.js';
-import { agregarPost, verPosts, mudarPost, borrarPost } from './database/consultas.js';
+import { agregarPost, verPosts, mudarPost, borrarPost, actualizarLike } from './database/consultas.js';
 
 // importar express y cors con sus instancias
 import express from 'express'
@@ -55,6 +55,7 @@ app.get('/posts', async (req, res) => {
 
 app.post('/posts', async (req, res) => {
     console.log('Entrando en el posts...');
+
     try {
         const post = {
             titulo: req.body.titulo,
@@ -88,6 +89,21 @@ app.put('/posts/:id', async (req, res) => {
         const { status, message } = handleErrors(error.code)
         return res.status(status).json({ok: false,
             result: message + ': ' + error.column })
+    }
+});
+
+app.put('/posts/like/:id', async (req, res) => {
+    console.log('Se hizo clik en Likes...')
+    const { id } = req.params;
+
+    try {
+        const result = await actualizarLike(id);
+
+        return res.status(200).json({ ok: true,
+        message: 'Se ha sumado un like',
+        result })
+    } catch (error) {
+        console.log(error);
     }
 });
 
